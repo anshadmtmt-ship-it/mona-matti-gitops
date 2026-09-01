@@ -12,4 +12,5 @@ replicas:
 
 images:
   - name: anshadin4k/mona-matti
-    newTag: latest
+    newTag: "48"
+
