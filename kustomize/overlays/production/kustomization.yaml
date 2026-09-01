@@ -6,10 +6,6 @@ resources:
 
 namespace: production
 
-replicas:
-  - name: mona-matti
-    count: 1
-
 images:
   - name: anshadin4k/mona-matti
     newTag: "48"
