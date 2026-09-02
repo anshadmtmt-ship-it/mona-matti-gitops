@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: mona-matti
+  namespace: argocd
+
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/anshadmtmt-ship-it/mona-matti-gitops.git
+    targetRevision: main
+    path: kustomize/overlays/production
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+
+  syncPolicy:
+    automated:
+      enabled: true
+      prune: true
+      selfHeal: true
