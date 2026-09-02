@@ -8,5 +8,5 @@ namespace: production
 
 images:
   - name: anshadin4k/mona-matti
-    newTag: "51"
+    newTag: "52"
 
