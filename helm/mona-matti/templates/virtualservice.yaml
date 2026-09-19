@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: {{ include "mona-matti.fullname" . }}-vs
+spec:
+  hosts:
+    - {{ include "mona-matti.fullname" . }}.production.svc.cluster.local
+  http:
+    - name: primary
+      route:
+        - destination:
+            host: {{ include "mona-matti.fullname" . }}-stable
+            port:
+              number: 8080
+          weight: 100
+        - destination:
+            host: {{ include "mona-matti.fullname" . }}-canary
+            port:
+              number: 8080
+          weight: 0

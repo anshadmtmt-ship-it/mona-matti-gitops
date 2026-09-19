@@ -1,64 +1,54 @@
+{{- if .Values.mysql.enabled }}
 apiVersion: apps/v1
 kind: Deployment
-
 metadata:
-  name: mona-matti-mysql
+  name: {{ include "mona-matti.fullname" . }}-mysql
   labels:
-    app: mona-matti-mysql
-
+    {{- include "mona-matti.labels" . | nindent 4 }}
+    app: {{ include "mona-matti.name" . }}-mysql
 spec:
-  replicas: 1
-
+  replicas: {{ .Values.mysql.replicaCount }}
   selector:
     matchLabels:
-      app: mona-matti-mysql
-
+      app: {{ include "mona-matti.name" . }}-mysql
   template:
     metadata:
       labels:
-        app: mona-matti-mysql
-
+        app: {{ include "mona-matti.name" . }}-mysql
     spec:
       containers:
         - name: mysql
-
-          image: mysql:8.0
-          imagePullPolicy: IfNotPresent
-
+          image: "{{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}"
+          imagePullPolicy: {{ .Values.mysql.image.pullPolicy }}
           ports:
             - containerPort: 3306
               protocol: TCP
-
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mona-matti-secret
+                  name: {{ include "mona-matti.fullname" . }}-secret
                   key: mysqlRootPassword
-
             - name: MYSQL_DATABASE
               valueFrom:
                 secretKeyRef:
-                  name: mona-matti-secret
+                  name: {{ include "mona-matti.fullname" . }}-secret
                   key: databaseName
-
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
-                  name: mona-matti-secret
+                  name: {{ include "mona-matti.fullname" . }}-secret
                   key: databaseUsername
-
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mona-matti-secret
+                  name: {{ include "mona-matti.fullname" . }}-secret
                   key: databasePassword
-
           volumeMounts:
             - name: mysql-storage
               mountPath: /var/lib/mysql
-
       volumes:
         - name: mysql-storage
           persistentVolumeClaim:
-            claimName: mona-matti-mysql-pvc
+            claimName: {{ include "mona-matti.fullname" . }}-mysql-pvc
+{{- end }}

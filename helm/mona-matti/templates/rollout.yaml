@@ -1,0 +1,99 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+
+metadata:
+  name: {{ include "mona-matti.fullname" . }}
+  labels:
+    {{- include "mona-matti.labels" . | nindent 4 }}
+    app: {{ include "mona-matti.name" . }}
+
+spec:
+  replicas: {{ .Values.replicaCount }}
+
+  selector:
+    matchLabels:
+      app: {{ include "mona-matti.name" . }}
+
+  strategy:
+    blueGreen:
+      activeService: {{ include "mona-matti.fullname" . }}-stable
+      previewService: {{ include "mona-matti.fullname" . }}-canary
+      autoPromotionEnabled: false
+
+  template:
+    metadata:
+      labels:
+        app: {{ include "mona-matti.name" . }}
+
+    spec:
+      containers:
+        - name: {{ include "mona-matti.name" . }}
+
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "mona-matti.fullname" . }}-config
+                  key: springProfile
+
+            - name: DB_HOST
+              value: "{{ include "mona-matti.fullname" . }}-mysql"
+
+            - name: DB_PORT
+              value: "3306"
+
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mona-matti.fullname" . }}-secret
+                  key: databaseName
+
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mona-matti.fullname" . }}-secret
+                  key: databaseUsername
+
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mona-matti.fullname" . }}-secret
+                  key: databasePassword
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+          startupProbe:
+            httpGet:
+              path: {{ .Values.probes.startup.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.probes.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
+
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probes.readiness.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probes.liveness.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}

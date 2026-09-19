@@ -1,0 +1,83 @@
+replicaCount: 2
+
+image:
+  repository: anshadin4k/mona-matti
+  tag: "61"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  host: mona-matti.local
+  path: /
+  pathType: Prefix
+
+config:
+  springProfile: prod
+
+# For the current lab configuration these mirror the existing Secret values.
+# For a production deployment, move these to an external/managed secret system.
+secrets:
+  databaseName: "mona_matti"
+  databaseUsername: "mona_user"
+  databasePassword: "mona_password"
+  mysqlRootPassword: "rootpassword123"
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+probes:
+  startup:
+    path: /actuator/health
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 30
+  readiness:
+    path: /actuator/health/readiness
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+  liveness:
+    path: /actuator/health/liveness
+    initialDelaySeconds: 90
+    periodSeconds: 15
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+mysql:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: mysql
+    tag: "8.0"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3306
+  persistence:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi
+    storageClass: standard
+
+nameOverride: mona-matti
+fullnameOverride: mona-matti

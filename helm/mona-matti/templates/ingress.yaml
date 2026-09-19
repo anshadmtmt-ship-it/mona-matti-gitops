@@ -1,0 +1,22 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "mona-matti.fullname" . }}
+  labels:
+    {{- include "mona-matti.labels" . | nindent 4 }}
+    app: {{ include "mona-matti.name" . }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.path }}
+            pathType: {{ .Values.ingress.pathType }}
+            backend:
+              service:
+                name: {{ include "mona-matti.fullname" . }}
+                port:
+                  number: {{ .Values.service.port }}
+{{- end }}

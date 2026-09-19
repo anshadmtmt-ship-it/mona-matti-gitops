@@ -1,0 +1,6 @@
+apiVersion: v2
+name: mona-matti
+description: Helm chart for the Mona-Matti application
+type: application
+version: 1.0.63
+appVersion: "61"

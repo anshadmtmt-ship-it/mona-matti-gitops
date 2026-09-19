@@ -1,0 +1,18 @@
+{{- if .Values.mysql.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mona-matti.fullname" . }}-mysql
+  labels:
+    {{- include "mona-matti.labels" . | nindent 4 }}
+    app: {{ include "mona-matti.name" . }}-mysql
+spec:
+  type: {{ .Values.mysql.service.type }}
+  selector:
+    app: {{ include "mona-matti.name" . }}-mysql
+  ports:
+    - name: mysql
+      port: {{ .Values.mysql.service.port }}
+      targetPort: 3306
+      protocol: TCP
+{{- end }}
