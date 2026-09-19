@@ -15,10 +15,25 @@ spec:
       app: {{ include "mona-matti.name" . }}
 
   strategy:
-    blueGreen:
-      activeService: {{ include "mona-matti.fullname" . }}-stable
-      previewService: {{ include "mona-matti.fullname" . }}-canary
-      autoPromotionEnabled: false
+    canary:
+      stableService: {{ include "mona-matti.fullname" . }}-stable
+      canaryService: {{ include "mona-matti.fullname" . }}-canary
+
+      trafficRouting:
+        istio:
+          virtualService:
+            name: {{ include "mona-matti.fullname" . }}-vs
+            routes:
+              - primary
+
+      steps:
+        - setWeight: 10
+        - pause: {}
+
+        - setWeight: 50
+        - pause: {}
+
+        - setWeight: 100
 
   template:
     metadata:
