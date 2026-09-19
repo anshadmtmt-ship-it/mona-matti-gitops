@@ -2,5 +2,5 @@ apiVersion: v2
 name: mona-matti
 description: Helm chart for the Mona-Matti application
 type: application
-version: 1.0.64
-appVersion: "59"
+version: 1.0.67
+appVersion: "62"

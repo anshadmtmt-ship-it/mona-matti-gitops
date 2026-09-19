@@ -2,7 +2,7 @@ replicaCount: 2
 
 image:
   repository: anshadin4k/mona-matti
-  tag: "59"
+  tag: "62"
   pullPolicy: IfNotPresent
 
 service:
